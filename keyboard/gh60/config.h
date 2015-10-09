@@ -18,14 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define GH60_REV_CHN
 
 /* USB Device descriptor parameter */
 #define VENDOR_ID       0xFEED
 #define PRODUCT_ID      0x6060
 #define DEVICE_VER      0x0001
-#define MANUFACTURER    geekhack
-#define PRODUCT         GH60
-#define DESCRIPTION     t.m.k. keyboard firmware for GH60
+#define MANUFACTURER    wacky6
+#define PRODUCT         Keyboard 60 Cherry Spring
+#define DESCRIPTION     tmk_custom: gh60 wacky layout
 
 /* key matrix size */
 #define MATRIX_ROWS 5
@@ -71,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* key combination for command */
 #define IS_COMMAND() ( \
-    keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
+    keyboard_report->mods == (MOD_BIT(KC_LALT) | MOD_BIT(KC_RALT)) \
 )
 
 /* PS2 mouse support */
