@@ -1,5 +1,6 @@
 #include "keymap_common.h"
 #include "action_layer.h"
+#include "action_tapping.h"
 
 // Wacky keymap
 #ifdef KEYMAP_SECTION_ENABLE
@@ -9,29 +10,39 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
 #endif
 
     /* Layer 0: Basic keymap
-     * `~X: Hold Ctrl, press `/~  ->  ESC
-     * BkspDel: Hold Ctrl,Alt, press BkspDel    -> Ctrl+Alt+Del
+     * Fn23:         tap:   ESC
+     *               hold:  LCtrl
+     * BkspDel:      Ctrl + Alt + BkspDel    -> Ctrl+Alt+Del
+     *               Fn1 + BkspDel           -> RShift+Del
+     * Fn16-Fn19:    tap:                     Up,   Left, Down, Right
+     *               hold:                    RSft, RAlt, RGUI, RCtrl
+     *               tap twice, hold:  [hold] Up,   Left, Down, Right
+     * Fn0:          Fn0 Layer
+     * Fn1:          tap:                     Toggle GAME_OVERLAY (Right-Bottom Arrow keys)
+     *               hold:                    Fn1 Layer
      * ,-----------------------------------------------------------.
-     * |`~X|  1|  2|  3|  4|  5|  6|  7|  8|  9|  0|  -|  =|BkspDel|
+     * |`~ |  1|  2|  3|  4|  5|  6|  7|  8|  9|  0|  -|  =|BkspDel|
      * |-----------------------------------------------------------|
      * |Tab  |  Q|  W|  E|  R|  T|  Y|  U|  I|  O|  P|  [|  ]|    \|
      * |-----------------------------------------------------------|
      * |Caps  |  A|  S|  D|  F|  G|  H|  J|  K|  L|  ;|  '|Return  |
      * |-----------------------------------------------------------|
-     * |Shift   |  Z|  X|  C|  V|  B|  N|  M|  ,|  .|  /| Up   |Fn1|
+     * |Shift   |  Z|  X|  C|  V|  B|  N|  M|  ,|  .|  /| Fn16 |Fn1|
      * |-----------------------------------------------------------|
-     * |Ctrl|Gui |Alt |      Space             |Alt |Fn0 |Gui |Ctrl|
+     * |Fn23|Gui |Alt |      Space             |Fn0 |Fn17|Fn18|Fn19|
      * `-----------------------------------------------------------'
      */
     KEYMAP(
-       FN29, 1,   2,   3,   4,   5,   6,   7,   8,   9,   0,   MINS,EQL, FN28, \
+        GRV, 1,   2,   3,   4,   5,   6,   7,   8,   9,   0,   MINS,EQL, FN28, \
         TAB, Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,   LBRC,RBRC,BSLS, \
        CAPS, A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN,QUOT,NO,  ENT,  \
-       LSFT, NO,  Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH,FN1, UP, \
-       LCTL, LGUI,LALT,          SPC,                     RALT,FN0, LEFT,RIGHT),
+       LSFT, NO,  Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH,FN1, FN16, \
+       FN23, LGUI,LALT,          SPC,                     FN0, FN17,FN18,FN19),
 
     #define MAC_OVERLAY (1)
     /* Layer MAC_OVERLAY: Mac Overlay
+     * Fn0 + Tab to toggle this layer
+     * Internally, RCmd, RAlt use Fn21, Fn22 to allow tap Left, Down
      * ,-----------------------------------------------------------.
      * |   |   |   |   |   |   |   |   |   |   |   |   |   |       |
      * |-----------------------------------------------------------|
@@ -41,7 +52,7 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
      * |-----------------------------------------------------------|
      * |        |   |   |   |   |   |   |   |   |   |   |      |   |
      * |-----------------------------------------------------------|
-     * |    |Alt | Cmd|                        |Cmd|     |    |    |
+     * |    |Alt | Cmd|                        |    | Cmd| Alt|    |
      * `-----------------------------------------------------------'
      */
     KEYMAP(
@@ -49,31 +60,67 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
         TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
         TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
         TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
-        TRNS,LALT,LGUI,          TRNS,                    RGUI,TRNS,TRNS,TRNS),\
+        TRNS,LALT,LGUI,          TRNS,                    TRNS,FN21,FN22,TRNS),
 
-    /* Layer 2: Fn0 Layer
-     * A29: Switch App, ref: hhbk-hasu
+    #define GAME_OVERLAY (2)
+    /* Layer GAME_OVERLAY: Game / Arrow Overlay,
+     * Tap Fn1 to toggle this layer
+     * ,-----------------------------------------------------------.
+     * |   |   |   |   |   |   |   |   |   |   |   |   |   |       |
+     * |-----------------------------------------------------------|
+     * |     |   |    |   |   |   |   |   |   |   |   |   |   |    |
+     * |-----------------------------------------------------------|
+     * |      |   |   |   |   |   |   |   |   |   |   |   |        |
+     * |-----------------------------------------------------------|
+     * |        |   |   |   |   |   |   |   |   |   |   |  Up  |   |
+     * |-----------------------------------------------------------|
+     * |    |    |    |                        |   |Left|Down|Right|
+     * `-----------------------------------------------------------'
+     */
+    KEYMAP(
+        TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
+        TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
+        TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS, \
+        TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,TRNS,UP, \
+        TRNS,TRNS,TRNS,          TRNS,                    TRNS,LEFT,DOWN,RIGHT),
+
+    /* Layer 3: Fn0 Layer
+     *
+     * Bri+/-:   only works in Mac ??? [UNTESTED]
+     *           internally, use Fn14, Fn15; send ScrLock, Pause
+     *           works if MAC_OVERLAY is on, otherwise, no effect
+     * Fn3:      Mac/Win (GUI-Alt/Alt-GUI) switch
+     * Fn4:      Fn0 Fn1 Combo Layer
+     * ? :       TBD, currently, poker2 style PgU/D, Home/End
+     * WRef:     Web Refresh
+     * MPr/MNX:  Media Previous/Next Track
+     * Calc:     Calculator (Windows)
      * ,-----------------------------------------------------------.
      * |ESC| F1| F2| F3| F4| F5| F6| F7| F8| F9|F10|F11|F12|Delete |
      * |-----------------------------------------------------------|
-     * |Fn3 |PgU|Up |PgD|WRef|   |   |   |Ins|   |Psc|MNx|MPr|Calc |
+     * |Fn3 |   |Up |   |WRef|   |   |   |Ins|   |Psc|MPr|MNx|Calc |
      * |-----------------------------------------------------------|
-     * |      |Lef|Dow|Rig|   |   |   |   |   |   |Hom|PgU|        |
+     * |      |Lef|Dwn|Rig|   |   |   |   |   |   | ? | ? |        |
      * |-----------------------------------------------------------|
-     * |        |Hom|End|   |   |   |   |   |   |End|PgD|RShift|Fn4|
+     * |        |   |   |   |   |   |   |   |   |   |Mute|Bri+ |Fn4|
      * |-----------------------------------------------------------|
-     * |    |    |    |     Backlight          |Mute|    |Vol-|Vol+|
+     * |    |    |    |     Backlight          |    |Vol-|Bri-|Vol+|
      * `-----------------------------------------------------------'
      */
     KEYMAP(
         ESC, F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10, F11, F12, DEL,  \
-        FN3, PGUP,UP,  PGDN,WREF,NO,  NO,  NO, INS,  NO, NO,   MPRV,MNXT,CALC,  \
+        FN3, NO,  UP,  NO,  WREF,NO,  NO,  NO, INS,  NO, PSCR, MPRV,MNXT,CALC,  \
         NO,  LEFT,DOWN,RGHT,NO,  NO,  NO,  NO,  NO,  NO, HOME, PGUP,NO,  NO, \
-        NO,  HOME,END, NO,  NO,  NO,  NO,  NO,  NO,  NO, END,  PGDN,FN4, RSFT, \
-        NO,  NO,  NO,          FN2,                      MUTE,TRNS,VOLD, VOLU),
+        NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,   NO, MUTE,FN4, FN14, \
+        NO,  NO,  NO,          FN2,                      TRNS, VOLD,FN15,VOLU),
 
-    /* Layer 3: Fn1 Layer
-     * SFT_DEL: Send Shift+Del
+    #define LAYER_FN1 (4)
+    /* Layer LAYER_FN1: Fn1 Layer
+     * SFT_DEL:       Shift + Del
+     * Fn5:           Fn0 Fn1 Combo Layer
+     * mLB/RB:        mouse Left/Right Btn
+     * mUp/Lf/Dn/Ri:  mouse Up/Left/Down/Right
+     * msU/msD:       mouse wheel Up/Down
      * ,-----------------------------------------------------------.
      * |   |   |   |   |   |   |   |   |   |   |   |   |   |SFT_DEL|
      * |-----------------------------------------------------------|
@@ -81,19 +128,22 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
      * |-----------------------------------------------------------|
      * |      |mLf|mDn|mRi|   |   |   |   |   |   |   |   |        |
      * |-----------------------------------------------------------|
-     * |        |msU|msD|   |   |   |   |   |   |   |   |  Up |    |
+     * |        |msU|msD|   |   |   |   |   |   |   |   | PgUp|    |
      * |-----------------------------------------------------------|
-     * |    |    |    |                        |    | Fn5|Down|    |
+     * |    |    |    |                        | Fn5|Home|PgDn|End |
      * `-----------------------------------------------------------'
      */
     KEYMAP(
         NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  NO, FN27,  \
         NO,  BTN1,MS_U,BTN2,NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  NO,   NO,  \
         NO,  MS_L,MS_D,MS_R,NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  NO,   NO, \
-        NO,  WH_U,WH_D,NO,  NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  TRNS, UP, \
-        NO,  NO,  NO,          NO,                       NO,  FN5,  DOWN, NO),
+        NO,  WH_U,WH_D,NO,  NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  TRNS, PGUP, \
+        NO,  NO,  NO,          NO,                       FN5,HOME,  PGDN, END),
 
-    /* Layer 4: Fn0 + Fn1 Combo
+    /* Layer 5: Fn0 + Fn1 Combo
+     * dangerous or boring commands
+     * 
+     * Pwr: Power button   [Dangerous!]
      * A31: Fn31 -> Action: <Up><Enter>  (shell, exec previous command)
      * A30: Fn30 -> Action: --help | less<Enter>  (shell, get help & less)
      * ,-----------------------------------------------------------.
@@ -113,7 +163,7 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] PROGMEM = {
         NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  NO,  NO,  \
         NO,  NO,  NO,  NO,  NO,  NO,  FN30,NO,  NO,  NO, NO,   NO,  NO,  NO, \
         NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO,  NO, NO,   NO,  TRNS,NO, \
-        NO,  NO,  NO,          NO,                       NO, TRNS,  NO,  NO),
+        NO,  NO,  NO,          NO,                     TRNS,   NO,  NO,  NO),
 };
 
 enum macro_id {
@@ -124,7 +174,16 @@ enum macro_id {
 enum function_id {
     BKSPDEL,
     SFT_DEL,
-    TRK_ESC
+    SUPER_FN1,
+    APPL_BRI_UP,
+    APPL_BRI_DN,
+    LCTL_ESC,
+    RSFT_UP,
+    RALT_LEFT,
+    RGUI_DOWN,
+    RCTL_RIGHT,
+    RGUI_LEFT,
+    RALT_DOWN
 };
 
 /*
@@ -135,16 +194,24 @@ const uint16_t fn_actions[FN_ACTIONS_COUNT] __attribute__ ((section (".keymap.fn
 #else
 const uint16_t fn_actions[] PROGMEM = {
 #endif
-    /* Poker2 Layout */
-    [0] = ACTION_LAYER_MOMENTARY(2),  // Fn0 Layer
-    [1] = ACTION_LAYER_MOMENTARY(3),  // Fn1 Layer
-    [2] = ACTION_BACKLIGHT_TOGGLE(),  // Backlight, if impl. in the future
-    [3] = ACTION_LAYER_TOGGLE(1),     // Mac overlay
-    [4] = ACTION_LAYER_MOMENTARY(4),  // Fn 1+0 Combo, dangerous actions
-    [5] = ACTION_LAYER_MOMENTARY(4),  // Fn 1+0 Combo, dangerous actions
+    [0] = ACTION_LAYER_MOMENTARY(3),         // Fn0 Layer
+    [1] = ACTION_FUNCTION(SUPER_FN1),        // Tap: Toggle Game/Arrow Overlay, Hold: Fn1 Layer
+    [2] = ACTION_BACKLIGHT_TOGGLE(),         // Backlight, if impl. in the future
+    [3] = ACTION_LAYER_TOGGLE(MAC_OVERLAY),  // Mac overlay
+    [4] = ACTION_LAYER_MOMENTARY(5),         // Fn 1+0 Combo, dangerous actions
+    [5] = ACTION_LAYER_MOMENTARY(5),         // Fn 1+0 Combo, dangerous actions
+    [14] = ACTION_FUNCTION(APPL_BRI_UP),     // Apple Brightness Up
+    [15] = ACTION_FUNCTION(APPL_BRI_DN),     // Apple Brightness Down
+    [16] = ACTION_FUNCTION(RSFT_UP),
+    [17] = ACTION_FUNCTION(RALT_LEFT),
+    [18] = ACTION_FUNCTION(RGUI_DOWN),
+    [19] = ACTION_FUNCTION(RCTL_RIGHT),
+    [20] = ACTION_LAYER_TOGGLE(GAME_OVERLAY),        // Game/Arrow Overlay
+    [21] = ACTION_FUNCTION(RGUI_LEFT),   // Mac overlay RGUI/Left
+    [22] = ACTION_FUNCTION(RALT_DOWN),   // Mac overlay RALT/Down
+    [23] = ACTION_FUNCTION(LCTL_ESC),
     [27] = ACTION_FUNCTION(SFT_DEL),    // Fn1 + Bksp -> Shift+Del
     [28] = ACTION_FUNCTION(BKSPDEL),    // Under windows: Ctrl Alt Bksp -> Ctrl+Alt+Del,
-    [29] = ACTION_FUNCTION(TRK_ESC),    // Ctrl ESC will send ES
     [30] = ACTION_MACRO(SHL_HELP),      // equiv: --help | less <Enter>
     [31] = ACTION_MACRO(SHL_EXEC_PREV)  // equiv: <Up><Enter>
 };
@@ -159,7 +226,6 @@ uint16_t fn_actions_count(void) {
 }
 #endif
 
-#define is_mac (layer_state & 1UL<<MAC_OVERLAY)
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 {
     switch (id) {
@@ -179,12 +245,44 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
     return MACRO_NONE;
 }
 
+
+#define PRESS_TIME(mods) (record->event.time - press_time[mods])
+#define TAP_THRESHOLD        (200)
+void mods_tap(keyrecord_t *record, uint8_t modifier, uint8_t tap_key) {
+    static uint16_t press_time[256];
+    static uint16_t release_time;
+    static bool in_streak;
+    if (record->event.pressed) {
+        new_key_pressed = false;
+        press_time[modifier] = record->event.time;
+        if (record->event.time - release_time < TAP_THRESHOLD || in_streak) {
+            register_code(tap_key);
+            in_streak = true;
+        }else
+            register_code(modifier);
+    }else{
+        unregister_code(modifier);
+        unregister_code(tap_key);
+        if (PRESS_TIME(modifier) < TAP_THRESHOLD && !new_key_pressed && !in_streak) {
+            register_code(tap_key);
+            unregister_code(tap_key);
+            release_time = record->event.time;
+        }
+        if (in_streak) {
+            release_time = record->event.time;
+            in_streak = false;
+        }
+    }
+}
+
 #define MODS_SHIFT_MASK (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT))
 #define MODS_CTRL_MASK  (MOD_BIT(KC_LCTL))
 #define MODS_CTRL_ALT_MASK (MOD_BIT(KC_LCTL) | MOD_BIT(KC_LALT))
+#define LAYER_MAC (layer_state & (1UL<<MAC_OVERLAY))
 void action_function(keyrecord_t *record, uint8_t id, uint8_t opt)
 {
-    static uint8_t registered_bksp, registered_tilde;
+    static uint8_t registered_bksp;
+    static uint16_t fn1_press_time;
     switch (id) {
         case BKSPDEL:
             if (record->event.pressed) {
@@ -206,19 +304,53 @@ void action_function(keyrecord_t *record, uint8_t id, uint8_t opt)
                 unregister_code(KC_DEL);
             }
         break;
-        case TRK_ESC:
+        case SUPER_FN1:
             if (record->event.pressed) {
-                if ((get_mods() & MODS_CTRL_MASK) == MODS_CTRL_MASK)
-                    registered_tilde = KC_ESC;
-                else
-                    registered_tilde = KC_GRV;
-                if (registered_tilde == KC_ESC) unregister_code(KC_LCTL);
-                register_code(registered_tilde);
+                fn1_press_time = record->event.time;
+                layer_on(LAYER_FN1);
             }else{
-                unregister_code(registered_tilde);
-                if (registered_tilde == KC_ESC) register_code(KC_LCTL);
+                uint16_t pressed = record->event.time - fn1_press_time;
+                if (pressed < TAPPING_TERM) 
+                    layer_invert(GAME_OVERLAY);
+                layer_off(LAYER_FN1);
             }
-            break;
+        break;
+        case APPL_BRI_UP:
+            if (!LAYER_MAC) return;
+            if (record->event.pressed) {
+                register_code(KC_PAUS);
+            }else{
+                unregister_code(KC_PAUS);
+            }
+        break;
+        case APPL_BRI_DN:
+            if (!LAYER_MAC) return;
+            if (record->event.pressed) {
+                register_code(KC_SLCK);
+            }else{
+                unregister_code(KC_SLCK);
+            }
+        break;
+        case LCTL_ESC:
+            mods_tap(record, KC_LCTRL, KC_ESC);
+        break;
+        case RSFT_UP:
+            mods_tap(record, KC_RSHIFT, KC_UP);
+        break;
+        case RALT_LEFT:
+            mods_tap(record, KC_RALT, KC_LEFT);
+        break;
+        case RGUI_DOWN:
+            mods_tap(record, KC_RGUI, KC_DOWN);
+        break;
+        case RCTL_RIGHT:
+            mods_tap(record, KC_RCTL, KC_RIGHT);
+        break;
+        case RGUI_LEFT:
+            mods_tap(record, KC_RGUI, KC_LEFT);
+        break;
+        case RALT_DOWN:
+            mods_tap(record, KC_RALT, KC_DOWN);
         break;
     }
 }
